@@ -40,6 +40,16 @@ export const Board = () => {
     );
   };
 
+  const handleNoteContentChange = (id: string, content: string) => {
+    setNotes(prev => 
+      prev.map(note => 
+        note.id === id 
+          ? { ...note, content }
+          : note
+      )
+    );
+  };
+
   return (
     <div
       className="w-full h-screen overflow-auto bg-gray-50 relative cursor-crosshair"
@@ -61,7 +71,12 @@ export const Board = () => {
         }}
       >
         {notes.map(note => (
-          <NoteComponent key={note.id} note={note} onDrag={handleNoteDrag} />
+          <NoteComponent 
+            key={note.id} 
+            note={note} 
+            onDrag={handleNoteDrag} 
+            onContentChange={handleNoteContentChange} 
+          />
         ))}
       </div>
     </div>

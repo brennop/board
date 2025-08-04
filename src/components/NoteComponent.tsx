@@ -4,9 +4,10 @@ import { type Note } from '../types';
 interface NoteComponentProps {
   note: Note;
   onDrag: (id: string, x: number, y: number) => void;
+  onContentChange: (id: string, content: string) => void;
 }
 
-export const NoteComponent = ({ note, onDrag }: NoteComponentProps) => {
+export const NoteComponent = ({ note, onDrag, onContentChange }: NoteComponentProps) => {
   return (
     <motion.div
       className="absolute bg-white border-2 border-gray-900 shadow-sm"
@@ -32,7 +33,7 @@ export const NoteComponent = ({ note, onDrag }: NoteComponentProps) => {
         className="w-full h-full bg-transparent resize-none border-none outline-none text-sm"
         value={note.content}
         placeholder="Type your note..."
-        readOnly
+        onChange={(event) => onContentChange(note.id, event.target.value)}
       />
     </motion.div>
   );

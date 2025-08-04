@@ -1,4 +1,4 @@
-export const GRID_SIZE = 8;
+export const GRID_SIZE = 16;
 
 export const snapToGrid = (value: number): number => {
   return Math.round(value / GRID_SIZE) * GRID_SIZE;
