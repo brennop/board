@@ -35,7 +35,7 @@ export const NoteComponent = ({ note, onDrag, onContentChange }: NoteComponentPr
       drag
       dragMomentum={false}
       dragElastic={0}
-      onDragEnd={(event, info) => {
+      onDragEnd={(_, info) => {
         onDrag(note.id, note.x + info.offset.x, note.y + info.offset.y);
       }}
     >
