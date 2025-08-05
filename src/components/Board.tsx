@@ -11,6 +11,15 @@ export const Board = () => {
   const { notes, addNote, updateNote } = useCollaborativeNotes();
 
   const handleDoubleClick = (event: MouseEvent<HTMLDivElement>) => {
+    // Only create notes if double-clicking on the board background or its inner container
+    const target = event.target as HTMLElement;
+    const isBackground = target.classList.contains('bg-gray-50') || 
+                        (target.style.width === '200vw' && target.style.height === '200vh');
+    
+    if (!isBackground) {
+      return;
+    }
+
     const rect = event.currentTarget.getBoundingClientRect();
     const x = event.clientX - rect.left + event.currentTarget.scrollLeft;
     const y = event.clientY - rect.top + event.currentTarget.scrollTop;
@@ -39,6 +48,10 @@ export const Board = () => {
     updateNote(id, { content });
   };
 
+  const handleNoteResize = (id: string, width: number, height: number) => {
+    updateNote(id, { width, height });
+  };
+
   return (
     <div
       className="w-full h-screen overflow-auto bg-gray-50 relative cursor-crosshair"
@@ -64,7 +77,8 @@ export const Board = () => {
             key={note.id} 
             note={note} 
             onDrag={handleNoteDrag} 
-            onContentChange={handleNoteContentChange} 
+            onContentChange={handleNoteContentChange}
+            onResize={handleNoteResize}
           />
         ))}
       </div>

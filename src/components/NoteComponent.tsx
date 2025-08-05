@@ -1,18 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, useDragControls } from 'motion/react';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { type Note } from '../types';
-import { renderMarkdown } from '../utils';
 
 interface NoteComponentProps {
   note: Note;
   onDrag: (id: string, x: number, y: number) => void;
   onContentChange: (id: string, content: string) => void;
+  onResize: (id: string, width: number, height: number) => void;
 }
 
-export const NoteComponent = ({ note, onDrag, onContentChange }: NoteComponentProps) => {
+export const NoteComponent = ({ note, onDrag, onContentChange, onResize }: NoteComponentProps) => {
   const [localContent, setLocalContent] = useState(note.content);
   const [isEditing, setIsEditing] = useState(false);
-  const [renderedMarkdown, setRenderedMarkdown] = useState('');
+  const [isResizing, setIsResizing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dragControls = useDragControls();
 
@@ -20,13 +22,6 @@ export const NoteComponent = ({ note, onDrag, onContentChange }: NoteComponentPr
   useEffect(() => {
     setLocalContent(note.content);
   }, [note.content]);
-
-  // Render markdown when not editing
-  useEffect(() => {
-    if (!isEditing && localContent.trim()) {
-      renderMarkdown(localContent).then(setRenderedMarkdown);
-    }
-  }, [localContent, isEditing]);
 
   const handleClick = () => {
     if (!isEditing) {
@@ -58,6 +53,34 @@ export const NoteComponent = ({ note, onDrag, onContentChange }: NoteComponentPr
     }
   };
 
+  const handleResizeStart = (event: React.PointerEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsResizing(true);
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startWidth = note.width;
+    const startHeight = note.height;
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+      const newWidth = Math.max(100, startWidth + deltaX);
+      const newHeight = Math.max(60, startHeight + deltaY);
+      onResize(note.id, newWidth, newHeight);
+    };
+
+    const handlePointerUp = () => {
+      setIsResizing(false);
+      document.removeEventListener('pointermove', handlePointerMove);
+      document.removeEventListener('pointerup', handlePointerUp);
+    };
+
+    document.addEventListener('pointermove', handlePointerMove);
+    document.addEventListener('pointerup', handlePointerUp);
+  };
+
   return (
     <motion.div
       className="absolute bg-white flex flex-col border-2 border-gray-900 shadow-sm group"
@@ -67,7 +90,7 @@ export const NoteComponent = ({ note, onDrag, onContentChange }: NoteComponentPr
       }}
       initial={{ x: note.x, y: note.y }}
       animate={{ x: note.x, y: note.y }}
-      drag
+      drag={!isResizing}
       dragControls={dragControls}
       dragMomentum={false}
       dragListener={false}
@@ -96,13 +119,25 @@ export const NoteComponent = ({ note, onDrag, onContentChange }: NoteComponentPr
         />
       ) : (
         <div
-          className="w-full h-full cursor-pointer overflow-auto prose prose-sm prose-serif max-w-none p-1"
-          onClick={handleClick}
-          dangerouslySetInnerHTML={{ 
-            __html: renderedMarkdown || localContent || '<span class="text-gray-400">Click to edit...</span>' 
-          }}
-        />
+          className="w-full h-full cursor-auto overflow-auto prose prose-sm prose-serif max-w-none pt-0 p-2 font-serif"
+          onDoubleClick={handleClick}
+        >
+          {localContent.trim() ? (
+            <Markdown remarkPlugins={[remarkGfm]}>{localContent}</Markdown>
+          ) : (
+            <span className="text-gray-400">Double click to edit...</span>
+          )}
+        </div>
       )}
+      
+      {/* Resize handle */}
+      <div
+        className="absolute bottom-0 right-0 w-3 h-3 bg-gray-400 opacity-0 group-hover:opacity-100 cursor-se-resize transition-opacity duration-200"
+        onPointerDown={handleResizeStart}
+        style={{
+          clipPath: 'polygon(100% 0%, 0% 100%, 100% 100%)',
+        }}
+      />
     </motion.div>
   );
 };
