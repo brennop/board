@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { type Note } from '../types';
 
@@ -8,6 +9,20 @@ interface NoteComponentProps {
 }
 
 export const NoteComponent = ({ note, onDrag, onContentChange }: NoteComponentProps) => {
+  const [localContent, setLocalContent] = useState(note.content);
+
+  // Update local content when note content changes externally (from other users)
+  useEffect(() => {
+    setLocalContent(note.content);
+  }, [note.content]);
+
+  const handleBlur = () => {
+    // Only commit if content actually changed
+    if (localContent !== note.content) {
+      onContentChange(note.id, localContent);
+    }
+  };
+
   return (
     <motion.div
       className="absolute bg-white border-2 border-gray-900 shadow-sm"
@@ -31,9 +46,10 @@ export const NoteComponent = ({ note, onDrag, onContentChange }: NoteComponentPr
       </div>
       <textarea
         className="w-full h-full bg-transparent resize-none border-none outline-none text-sm"
-        value={note.content}
+        value={localContent}
         placeholder="Type your note..."
-        onChange={(event) => onContentChange(note.id, event.target.value)}
+        onChange={(event) => setLocalContent(event.target.value)}
+        onBlur={handleBlur}
       />
     </motion.div>
   );

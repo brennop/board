@@ -1,13 +1,14 @@
-import { useState, type MouseEvent } from 'react';
+import { type MouseEvent } from 'react';
 import { type Note } from '../types';
 import { NoteComponent } from './NoteComponent';
 import { snapPositionToGrid, generateId } from '../utils';
+import { useCollaborativeNotes } from '../store';
 
 const DEFAULT_NOTE_WIDTH = 200;
 const DEFAULT_NOTE_HEIGHT = 100;
 
 export const Board = () => {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const { notes, addNote, updateNote } = useCollaborativeNotes();
 
   const handleDoubleClick = (event: MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -26,28 +27,16 @@ export const Board = () => {
       height: DEFAULT_NOTE_HEIGHT,
     };
 
-    setNotes(prev => [...prev, newNote]);
+    addNote(newNote);
   };
 
   const handleNoteDrag = (id: string, x: number, y: number) => {
     const snappedPosition = snapPositionToGrid(x, y);
-    setNotes(prev => 
-      prev.map(note => 
-        note.id === id 
-          ? { ...note, x: snappedPosition.x, y: snappedPosition.y }
-          : note
-      )
-    );
+    updateNote(id, { x: snappedPosition.x, y: snappedPosition.y });
   };
 
   const handleNoteContentChange = (id: string, content: string) => {
-    setNotes(prev => 
-      prev.map(note => 
-        note.id === id 
-          ? { ...note, content }
-          : note
-      )
-    );
+    updateNote(id, { content });
   };
 
   return (
