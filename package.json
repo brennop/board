@@ -11,11 +11,18 @@
     "start": "NODE_ENV=production bun src/index.tsx"
   },
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.16",
     "bun-plugin-tailwind": "^0.0.15",
     "motion": "^12.23.12",
     "react": "^19",
     "react-dom": "^19",
+    "rehype-sanitize": "^6.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
     "tailwindcss": "^4.1.11",
+    "unified": "^11.0.5",
     "y-webrtc": "^10.3.0",
     "yjs": "^13.6.27"
   },

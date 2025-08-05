@@ -112,3 +112,4 @@ This is 2D collaborative board. Users create notes free on the board. Users can
 move them. It uses yjs and CRDT's for collaboration.
 
 - Only add testing tasks if the user asks.
+- The development files are under src/
