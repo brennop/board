@@ -13,11 +13,15 @@ export function useCollaborativeNotes(roomName: string = 'board-room') {
   const notesArrayRef = useRef<Y.Array<Note> | null>(null);
 
   useEffect(() => {
+    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const host = window.location.host;
+    const wsUrl = protocol + host;
+
     // Reuse global instances to prevent multiple connections
     if (!globalDoc) {
       globalDoc = new Y.Doc();
       globalProvider = new WebrtcProvider(roomName, globalDoc, {
-        signaling: ['wss://yjs.brennn.in'],
+        signaling: [wsUrl],
       });
     }
 
@@ -52,7 +56,7 @@ export function useCollaborativeNotes(roomName: string = 'board-room') {
 
   const updateNote = (id: string, updates: Partial<Note>) => {
     if (!notesArrayRef.current) return;
-    
+
     const index = notesArrayRef.current.toArray().findIndex(note => note.id === id);
     if (index !== -1) {
       const currentNote = notesArrayRef.current.get(index);
@@ -64,7 +68,7 @@ export function useCollaborativeNotes(roomName: string = 'board-room') {
 
   const deleteNote = (id: string) => {
     if (!notesArrayRef.current) return;
-    
+
     const index = notesArrayRef.current.toArray().findIndex(note => note.id === id);
     if (index !== -1) {
       notesArrayRef.current.delete(index, 1);
