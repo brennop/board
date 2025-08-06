@@ -8,7 +8,7 @@ const DEFAULT_NOTE_WIDTH = 200;
 const DEFAULT_NOTE_HEIGHT = 100;
 
 export const Board = () => {
-  const { notes, addNote, updateNote } = useCollaborativeNotes();
+  const { notes, addNote, updateNote, deleteNote } = useCollaborativeNotes();
 
   const handleDoubleClick = (event: MouseEvent<HTMLDivElement>) => {
     // Only create notes if double-clicking on the board background or its inner container
@@ -52,6 +52,10 @@ export const Board = () => {
     updateNote(id, { width, height });
   };
 
+  const handleNoteDelete = (id: string) => {
+    deleteNote(id);
+  };
+
   return (
     <div
       className="w-full h-screen overflow-auto bg-gray-50 relative cursor-crosshair"
@@ -79,6 +83,7 @@ export const Board = () => {
             onDrag={handleNoteDrag} 
             onContentChange={handleNoteContentChange}
             onResize={handleNoteResize}
+            onDelete={handleNoteDelete}
           />
         ))}
       </div>
