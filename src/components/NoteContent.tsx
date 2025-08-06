@@ -1,9 +1,13 @@
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { ImageContent } from './ImageContent';
 
 interface NoteContentProps {
   isEditing: boolean;
   localContent: string;
+  noteType: 'text' | 'image';
+  noteWidth: number;
+  noteHeight: number;
   textareaRef: React.RefObject<HTMLTextAreaElement> | null;
   onContentChange: (value: string) => void;
   onStartEditing: () => void;
@@ -13,13 +17,27 @@ interface NoteContentProps {
 
 export const NoteContent = ({ 
   isEditing, 
-  localContent, 
+  localContent,
+  noteType,
+  noteWidth,
+  noteHeight,
   textareaRef, 
   onContentChange, 
   onStartEditing, 
   onStopEditing, 
   onKeyDown 
 }: NoteContentProps) => {
+  // Image notes are not editable
+  if (noteType === 'image') {
+    return (
+      <ImageContent 
+        content={localContent} 
+        width={noteWidth} 
+        height={noteHeight} 
+      />
+    );
+  }
+
   if (isEditing) {
     return (
       <textarea

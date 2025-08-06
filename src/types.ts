@@ -1,7 +1,7 @@
 export type Note = {
   id: string;
   content: string;
-  type: 'text';
+  type: 'text' | 'image';
   x: number;
   y: number;
   width: number;

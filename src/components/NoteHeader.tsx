@@ -10,7 +10,7 @@ interface NoteHeaderProps {
 export const NoteHeader = ({ noteId, isEditing, onDelete, dragControls }: NoteHeaderProps) => {
   return (
     <div 
-      className={`${isEditing ? 'bg-blue-600' : 'bg-gray-900'} text-xs text-white flex justify-between cursor-move opacity-0 group-hover:opacity-100 transition-all duration-200 relative`}
+      className={`${isEditing ? 'bg-blue-600' : 'bg-gray-900'} text-xs text-white flex justify-between cursor-move opacity-0 group-hover:opacity-100 transition-all duration-200 relative z-10`}
       onPointerDown={(e) => dragControls.start(e)}
     >
       {noteId}

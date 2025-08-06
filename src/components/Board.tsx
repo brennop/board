@@ -1,14 +1,18 @@
-import { type MouseEvent } from 'react';
+import { type MouseEvent, useEffect, useRef } from 'react';
 import { type Note } from '../types';
 import { NoteComponent } from './NoteComponent';
 import { snapPositionToGrid, generateId } from '../utils';
 import { useCollaborativeNotes } from '../store';
+import { getImageFromClipboard, isImageInClipboard } from '../utils/clipboard';
 
 const DEFAULT_NOTE_WIDTH = 200;
 const DEFAULT_NOTE_HEIGHT = 100;
+const DEFAULT_IMAGE_WIDTH = 300;
+const DEFAULT_IMAGE_HEIGHT = 200;
 
 export const Board = () => {
   const { notes, addNote, updateNote, deleteNote } = useCollaborativeNotes();
+  const boardRef = useRef<HTMLDivElement>(null);
 
   const handleDoubleClick = (event: MouseEvent<HTMLDivElement>) => {
     // Only create notes if double-clicking on the board background or its inner container
@@ -56,8 +60,49 @@ export const Board = () => {
     deleteNote(id);
   };
 
+  const createImageNote = async (x: number, y: number) => {
+    const base64Image = await getImageFromClipboard();
+    if (!base64Image) return;
+
+    const snappedPosition = snapPositionToGrid(x, y);
+
+    const newNote: Note = {
+      id: generateId(),
+      content: base64Image,
+      type: 'image',
+      x: snappedPosition.x,
+      y: snappedPosition.y,
+      width: DEFAULT_IMAGE_WIDTH,
+      height: DEFAULT_IMAGE_HEIGHT,
+    };
+
+    addNote(newNote);
+  };
+
+  useEffect(() => {
+    const handlePaste = async (event: ClipboardEvent) => {
+      if (await isImageInClipboard()) {
+        event.preventDefault();
+        
+        // Create image note at center of viewport
+        if (boardRef.current) {
+          const rect = boardRef.current.getBoundingClientRect();
+          const centerX = boardRef.current.scrollLeft + rect.width / 2;
+          const centerY = boardRef.current.scrollTop + rect.height / 2;
+          
+          await createImageNote(centerX, centerY);
+        }
+      }
+    };
+
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
+  }, []);
+
+
   return (
     <div
+      ref={boardRef}
       className="w-full h-screen overflow-auto bg-gray-50 relative cursor-crosshair"
       onDoubleClick={handleDoubleClick}
       style={{
